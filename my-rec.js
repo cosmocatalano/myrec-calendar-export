@@ -3,6 +3,7 @@
 //event URL
 //default export calendar name
 //separate function for response parsing
+//all day handling
 
 //via TF export
 function downloadString(filename, text) {
@@ -28,23 +29,61 @@ function formatDateForICal(date) {
     return `${year}${month}${day}T${hours}${minutes}${seconds}Z`;
 }
 
+
+//returns object with separated title, paritipant, and location fields
+//splitting strings for now
+//maybe try some recursive regex plugins, though format can't really be guaranteed 
+function parseTitle(eventTitle) {
+    //assumes a single "*" joins the event title w/participant and venue
+    let splitTitle = eventTitle.split("*");
+    //take first half as-is for title
+    let newTitle = splitTitle[0]
+    //split the second half by start parenthesis
+    let attendeeVenue = splitTitle[1].split("(");
+    //first section is the attendee name
+    let attendeeName = attendeeVenue[0].trim();
+    //second is venue name
+    let venueName = attendeeVenue[1].trim().slice(0,-1);
+    //probably a more graceful way to populate this
+    let parsedTitle = {
+        "eventTitle": newTitle,
+        "eventAttendee": attendeeName,
+        "eventVenue": venueName 
+    } 
+    return parsedTitle;
+}
+
 //pulls request values out of the script last script in the header
 function getPostValue(postKey) {
     //assumes last script in head
     let pageScripts = document.head.getElementsByTagName("script");
     let lastScript = pageScripts[pageScripts.length - 1].innerHTML;
+    //using a RegExp to allow variable
     const regexPatt = new RegExp(postKey + '\\s=\\s([0-9]*?);', 'm');
     let regexResponse = lastScript.match(regexPatt);
     return regexResponse[1];
 }
 
+//parses URL path from JavaScript:OpenUrl command
+//probably needs to be less brittle
+function parseEventUrl(eventObject) {
+    const urlPatt = /OpenUrl\(\"(.*?)\"/
+    let regexUrl = eventObject.url.match(urlPatt);
+    return regexUrl[1];
+}
+
+//settings
+let isTitleParsed = true;
+
 //get host & build endpoint
 let myrecHost = window.location.host;
+//maybe attempt to auto-detect at some point 
 let myrecEndpoint = myrecHost + "/info/calendar/CalWebService.asmx/GetCalendarAccount"
 
 //start .ics file
 let outputCalendar = `BEGIN:VCALENDAR
-VERSION:2.0`
+VERSION:2.0
+PRODID:MyRec-to-ICS`
 
 //object for returned data
 let rawCalJSON = {};
@@ -62,13 +101,47 @@ let rawCalResponse = $.post(
 	}, 
     // do stuff with that data
     function(data) {
+        //get the JSON
     	rawCalJSON = JSON.parse(rawCalResponse.responseText)
+
+        //set iterator for UID
+        let i = 0;
+
+        //timestamp for each item
+        let rightNow = formatDateForICal(new Date());
+
+        //for each entry
         for (calEvent of rawCalJSON) {
+
+            //start counting at 1 like humans 
+            i++
+
+            // assign a title
+            let eventTitle = '';
+            let extendedIcalValues = '';
+
+            //check for title parser
+            if (isTitleParsed === true) {
+                //parse title
+                let parsedValues = parseTitle(calEvent.title);
+                //assign title variable
+                eventTitle = parsedValues.eventTitle;
+                //extended iCal values
+                extendedIcalValues = "LOCATION:" + parsedValues.eventVenue + 
+                                     "\nATTENDEE;CN=\"" + parsedValues.eventAttendee + "\";ROLE=PARTICIPANT\:"
+                
+            } else {
+                eventTitle = calEvent.title;
+            }
         	let newEvent =`
 BEGIN:VEVENT
-DTSTART: ${formatDateForICal(calEvent.start)}
-DTEND: ${formatDateForICal(calEvent.end)}
-SUMMARY: ${calEvent.title}
+UID:${"event-" + i + "@example.com"}
+DTSTAMP:${rightNow}
+DTSTART:${formatDateForICal(calEvent.start)}
+DTEND:${formatDateForICal(calEvent.end)}
+SUMMARY:${eventTitle}
+DESCRIPTION:${calEvent.title + "\\nMore info: https://" + myrecHost + parseEventUrl(calEvent) }
+${extendedIcalValues}
 END:VEVENT`
         	outputCalendar = outputCalendar + newEvent;
         }
