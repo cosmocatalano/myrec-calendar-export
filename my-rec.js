@@ -66,7 +66,6 @@ function getPostValue(postKey) {
 //settings
 let isTitleParsed = true;
 
-
 //get host & build endpoint
 let myrecHost = window.location.host;
 let myrecEndpoint = myrecHost + "/info/calendar/CalWebService.asmx/GetCalendarAccount"
@@ -91,13 +90,34 @@ let rawCalResponse = $.post(
 	}, 
     // do stuff with that data
     function(data) {
+        //get the JSON
     	rawCalJSON = JSON.parse(rawCalResponse.responseText)
+        //for each entry
         for (calEvent of rawCalJSON) {
+
+            // assign a title
+            let eventTitle = '';
+            let extendedIcalValues = '';
+
+            //check for title parser
+            if (isTitleParsed === true) {
+                //parse title
+                let parsedValues = parseTitle(calEvent.title);
+                //assign title variable
+                eventTitle = parsedValues.eventTitle;
+                //extended iCal values
+                extendedIcalValues = "LOCATION:" + parsedValues.eventVenue + 
+                                     "\nATTENDEE;CN=\"" + parsedValues.eventAttendee + "\";ROLE=PARTICIPANT\:"
+                
+            } else {
+                eventTitle = calEvent.title;
+            }
         	let newEvent =`
 BEGIN:VEVENT
-DTSTART: ${formatDateForICal(calEvent.start)}
-DTEND: ${formatDateForICal(calEvent.end)}
-SUMMARY: ${calEvent.title}
+DTSTART:${formatDateForICal(calEvent.start)}
+DTEND:${formatDateForICal(calEvent.end)}
+SUMMARY:${eventTitle}
+${extendedIcalValues}
 END:VEVENT`
         	outputCalendar = outputCalendar + newEvent;
         }
