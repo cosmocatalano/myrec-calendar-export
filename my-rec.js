@@ -3,6 +3,7 @@
 //event URL
 //default export calendar name
 //separate function for response parsing
+//all day handling
 
 //via TF export
 function downloadString(filename, text) {
@@ -28,6 +29,30 @@ function formatDateForICal(date) {
     return `${year}${month}${day}T${hours}${minutes}${seconds}Z`;
 }
 
+
+//returns object with separated title, paritipant, and location fields
+//splitting strings for now
+//maybe try some recursive regex plugins, though format can't really be guaranteed 
+function parseTitle(eventTitle) {
+    //assumes a single "*" joins the event title w/participant and venue
+    let splitTitle = eventTitle.split("*");
+    //take first half as-is for title
+    let newTitle = splitTitle[0]
+    //split the second half by start parenthesis
+    let attendeeVenue = splitTitle[1].split("(");
+    //first section is the attendee name
+    let attendeeName = trim(attendeeVenue[0]);
+    //second is venue name
+    let venueName = trim(splitTitle[1]).slice(0,-1);
+    //probably a more graceful wa to populate this
+    let parsedTitle = {
+        "eventTitle": newTitle,
+        "eventAttendee": attendeeName,
+        "eventVenue": venueName 
+    } 
+    return parsedTitle;
+}
+
 //pulls request values out of the script last script in the header
 function getPostValue(postKey) {
     //assumes last script in head
@@ -37,6 +62,10 @@ function getPostValue(postKey) {
     let regexResponse = lastScript.match(regexPatt);
     return regexResponse[1];
 }
+
+//settings
+let isTitleParsed = true;
+
 
 //get host & build endpoint
 let myrecHost = window.location.host;
