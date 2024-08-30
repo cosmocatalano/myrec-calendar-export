@@ -6,6 +6,8 @@
 //default export calendar name
 //separate function for response parsing
 
+
+
 //via TF export
 function downloadString(filename, text) {
     var element = document.createElement('a');
@@ -30,6 +32,11 @@ function formatDateForICal(date) {
     return `${year}${month}${day}T${hours}${minutes}${seconds}Z`;
 }
 
+//host & endpoint
+let myrecHost = window.location.host;
+let myrecEndpoint = myrecHost + "/info/calendar/CalWebService.asmx/GetCalendarAccount"
+console.log(myrecEndpoint);
+
 //start .ics file
 let outputCalendar = `BEGIN:VCALENDAR
 VERSION:2.0`
@@ -39,7 +46,7 @@ let rawCalJSON = {};
 
 //get MyRec data
 let rawCalResponse = $.post(
-	'https://carlislema.myrec.com/info/calendar/CalWebService.asmx/GetCalendarAccount', {
+	'https://' + myrecEndpoint, {
 		AccountID: 237781, 
 		AccountMemberID: 525008, 
 		ShowFacilities: true, 
