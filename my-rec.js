@@ -32,16 +32,15 @@ function formatDateForICal(date) {
     return `${year}${month}${day}T${hours}${minutes}${seconds}Z`;
 }
 
-function getAccountID() {
+//pulls request values out of the script last script in the header
+function getPostValue(postKey) {
     //assumes last script in head
     let pageScripts = document.head.getElementsByTagName("script");
     let lastScript = pageScripts[pageScripts.length - 1].innerHTML;
-    const regexPatt = /accountID\s=\s([0-9]*?)\;/m;
+    const regexPatt = new RegExp(postKey + '\\s=\\s([0-9]*?);', 'm');
     let regexResponse = lastScript.match(regexPatt);
     return regexResponse[1];
 }
-
-//post data 
 
 //host & endpoint
 let myrecHost = window.location.host;
