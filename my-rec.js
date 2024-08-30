@@ -80,7 +80,6 @@ let myrecHost = window.location.host;
 //maybe attempt to auto-detect at some point 
 let myrecEndpoint = myrecHost + "/info/calendar/CalWebService.asmx/GetCalendarAccount"
 
-
 //start .ics file
 let outputCalendar = `BEGIN:VCALENDAR
 VERSION:2.0
@@ -108,6 +107,9 @@ let rawCalResponse = $.post(
         //set iterator for UID
         let i = 0;
 
+        //timestamp for each item
+        let rightNow = formatDateForICal(new Date());
+
         //for each entry
         for (calEvent of rawCalJSON) {
 
@@ -134,6 +136,7 @@ let rawCalResponse = $.post(
         	let newEvent =`
 BEGIN:VEVENT
 UID:${"event-" + i + "@example.com"}
+DTSTAMP:${rightNow}
 DTSTART:${formatDateForICal(calEvent.start)}
 DTEND:${formatDateForICal(calEvent.end)}
 SUMMARY:${eventTitle}
