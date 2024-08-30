@@ -44,7 +44,7 @@ function parseTitle(eventTitle) {
     let attendeeName = attendeeVenue[0].trim();
     //second is venue name
     let venueName = attendeeVenue[1].trim().slice(0,-1);
-    //probably a more graceful wa to populate this
+    //probably a more graceful way to populate this
     let parsedTitle = {
         "eventTitle": newTitle,
         "eventAttendee": attendeeName,
@@ -58,9 +58,18 @@ function getPostValue(postKey) {
     //assumes last script in head
     let pageScripts = document.head.getElementsByTagName("script");
     let lastScript = pageScripts[pageScripts.length - 1].innerHTML;
+    //using a RegExp to allow variable
     const regexPatt = new RegExp(postKey + '\\s=\\s([0-9]*?);', 'm');
     let regexResponse = lastScript.match(regexPatt);
     return regexResponse[1];
+}
+
+//parses URL path from JavaScript:OpenUrl command
+//probably needs to be less brittle
+function parseEventUrl(eventObject) {
+    const urlPatt = /OpenUrl\(\"(.*?)\"/
+    let regexUrl = eventObject.url.match(urlPatt);
+    return regexUrl[1];
 }
 
 //settings
@@ -68,7 +77,9 @@ let isTitleParsed = true;
 
 //get host & build endpoint
 let myrecHost = window.location.host;
+//maybe attempt to auto-detect at some point 
 let myrecEndpoint = myrecHost + "/info/calendar/CalWebService.asmx/GetCalendarAccount"
+
 
 //start .ics file
 let outputCalendar = `BEGIN:VCALENDAR
@@ -117,6 +128,7 @@ BEGIN:VEVENT
 DTSTART:${formatDateForICal(calEvent.start)}
 DTEND:${formatDateForICal(calEvent.end)}
 SUMMARY:${eventTitle}
+DESCRIPTION:${calEvent.title + "\\nMore info: https://" + myrecHost + parseEventUrl(calEvent) }
 ${extendedIcalValues}
 END:VEVENT`
         	outputCalendar = outputCalendar + newEvent;
