@@ -83,7 +83,8 @@ let myrecEndpoint = myrecHost + "/info/calendar/CalWebService.asmx/GetCalendarAc
 
 //start .ics file
 let outputCalendar = `BEGIN:VCALENDAR
-VERSION:2.0`
+VERSION:2.0
+PRODID:MyRec-to-ICS`
 
 //object for returned data
 let rawCalJSON = {};
@@ -103,8 +104,15 @@ let rawCalResponse = $.post(
     function(data) {
         //get the JSON
     	rawCalJSON = JSON.parse(rawCalResponse.responseText)
+
+        //set iterator for UID
+        let i = 0;
+
         //for each entry
         for (calEvent of rawCalJSON) {
+
+            //start counting at 1 like humans 
+            i++
 
             // assign a title
             let eventTitle = '';
@@ -125,6 +133,7 @@ let rawCalResponse = $.post(
             }
         	let newEvent =`
 BEGIN:VEVENT
+UID:${"event-" + i + "@example.com"}
 DTSTART:${formatDateForICal(calEvent.start)}
 DTEND:${formatDateForICal(calEvent.end)}
 SUMMARY:${eventTitle}
