@@ -32,6 +32,17 @@ function formatDateForICal(date) {
     return `${year}${month}${day}T${hours}${minutes}${seconds}Z`;
 }
 
+function getAccountID() {
+    //assumes last script in head
+    let pageScripts = document.head.getElementsByTagName("script");
+    let lastScript = pageScripts[pageScripts.length - 1].innerHTML;
+    const regexPatt = /accountID\s=\s([0-9]*?)\;/m;
+    let regexResponse = lastScript.match(regexPatt);
+    return regexResponse[1];
+}
+
+//post data 
+
 //host & endpoint
 let myrecHost = window.location.host;
 let myrecEndpoint = myrecHost + "/info/calendar/CalWebService.asmx/GetCalendarAccount"
