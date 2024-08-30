@@ -41,9 +41,9 @@ function parseTitle(eventTitle) {
     //split the second half by start parenthesis
     let attendeeVenue = splitTitle[1].split("(");
     //first section is the attendee name
-    let attendeeName = trim(attendeeVenue[0]);
+    let attendeeName = attendeeVenue[0].trim();
     //second is venue name
-    let venueName = trim(splitTitle[1]).slice(0,-1);
+    let venueName = attendeeVenue[1].trim().slice(0,-1);
     //probably a more graceful wa to populate this
     let parsedTitle = {
         "eventTitle": newTitle,
