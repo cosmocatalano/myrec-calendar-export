@@ -1,12 +1,8 @@
 //TODO
-//auto-detect GetCalendarAccount endpoint
 //separate location value
 //event URL
-//automatic AccountID detection
 //default export calendar name
 //separate function for response parsing
-
-
 
 //via TF export
 function downloadString(filename, text) {
@@ -42,10 +38,9 @@ function getPostValue(postKey) {
     return regexResponse[1];
 }
 
-//host & endpoint
+//get host & build endpoint
 let myrecHost = window.location.host;
 let myrecEndpoint = myrecHost + "/info/calendar/CalWebService.asmx/GetCalendarAccount"
-console.log(myrecEndpoint);
 
 //start .ics file
 let outputCalendar = `BEGIN:VCALENDAR
@@ -54,11 +49,12 @@ VERSION:2.0`
 //object for returned data
 let rawCalJSON = {};
 
-//get MyRec data
+//POST request that returns MyRec data using values pulled using getPostValue() above
 let rawCalResponse = $.post(
 	'https://' + myrecEndpoint, {
-		AccountID: 237781, 
-		AccountMemberID: 525008, 
+        //NB: shift to lowercase on first letter
+		AccountID: getPostValue("accountID"), 
+		AccountMemberID: getPostValue("accountMemberID"), 
 		ShowFacilities: true, 
 		Debug: false,
 		start: '2024-07-28',
