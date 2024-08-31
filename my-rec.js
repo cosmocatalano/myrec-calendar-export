@@ -1,9 +1,8 @@
 //TODO
-//separate location value
-//event URL
+//CRLF check and wrap for iCalendar validity
 //default export calendar name
 //separate function for response parsing
-//all day handling
+//all-day handling
 
 //via TF export
 function downloadString(filename, text) {
@@ -29,6 +28,22 @@ function formatDateForICal(date) {
     return `${year}${month}${day}T${hours}${minutes}${seconds}Z`;
 }
 
+//via ChatGPT | initially tried to sendme for() loop 
+function wrapLineCSRF(input) {
+    const maxLineLength = 75;
+
+    //human wants to limit use to lines that need it because they tell me regex is expensive slow
+    if ( input.length > maxLineLength ) {
+
+        // Match the string in chunks of up to 75 characters
+        const wrappedLines = input.match(new RegExp(`.{1,${maxLineLength}}`, 'g'));
+
+        // Add the required space for any continuation lines and join with CRLF
+        return wrappedLines.map((line, index) => (index > 0 ? ' ' + line : line)).join('\r\n');
+    } else {
+        return input;
+    }
+}
 
 //returns object with separated title, paritipant, and location fields
 //splitting strings for now
@@ -127,8 +142,8 @@ let rawCalResponse = $.post(
                 //assign title variable
                 eventTitle = parsedValues.eventTitle;
                 //extended iCal values
-                extendedIcalValues = "LOCATION:" + parsedValues.eventVenue + 
-                                     "\nATTENDEE;CN=\"" + parsedValues.eventAttendee + "\";ROLE=PARTICIPANT\:"
+                extendedIcalValues = wrapLineCSRF("LOCATION:" + parsedValues.eventVenue) + 
+                                     wrapLineCSRF("\nATTENDEE;CN=\"" + parsedValues.eventAttendee + "\";ROLE=PARTICIPANT\:")
                 
             } else {
                 eventTitle = calEvent.title;
@@ -139,8 +154,8 @@ UID:${"event-" + i + "@example.com"}
 DTSTAMP:${rightNow}
 DTSTART:${formatDateForICal(calEvent.start)}
 DTEND:${formatDateForICal(calEvent.end)}
-SUMMARY:${eventTitle}
-DESCRIPTION:${calEvent.title + "\\nMore info: https://" + myrecHost + parseEventUrl(calEvent) }
+${wrapLineCSRF('SUMMARY:' + eventTitle)}
+${wrapLineCSRF('DESCRIPTION:' + calEvent.title + "\\nMore info: https://" + myrecHost + parseEventUrl(calEvent) )}
 ${extendedIcalValues}
 END:VEVENT`
         	outputCalendar = outputCalendar + newEvent;
