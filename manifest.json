@@ -1,10 +1,10 @@
 {
   "manifest_version": 3,
-  "name": "XYZ-Project",
-  "description": "Awesome Chrome Extension of XYZ-Project",
+  "name": "MyRec Calendar Exporter",
+  "description": "Exports your calendars from MyRec Calendar pages as .ics files",
   "version": "1.0",
-  "homepage_url": "https://github.com/XYZ-Project",
-  "author": "Your Name",
+  "homepage_url": "https://github.com/cosmocatalano/myrec-calendar-export",
+  "author": "Cosmo Catalano",
   "icons": {
     "16": "images/icon16.png",
     "19": "images/icon19.png",
