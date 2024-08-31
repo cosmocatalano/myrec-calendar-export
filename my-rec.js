@@ -122,7 +122,7 @@ const postData = {
 const urlEncodedData = new URLSearchParams(postData).toString();
 
 //making requqest
-let rawCalResponse = fetch(`https://${myrecEndpoint}`, {
+fetch(`https://${myrecEndpoint}`, {
     method: 'POST',
     headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -133,9 +133,6 @@ let rawCalResponse = fetch(`https://${myrecEndpoint}`, {
 })
 .then(response => response.json())
 .then(data => {
-    console.log('do stuff', data);
-    //get the JSON
-    rawCalJSON = JSON.parse(rawCalResponse.responseText)
 
     //set iterator for UID
     let i = 0;
@@ -144,7 +141,7 @@ let rawCalResponse = fetch(`https://${myrecEndpoint}`, {
     let rightNow = formatDateForICal(new Date());
 
     //for each entry
-    for (calEvent of rawCalJSON) {
+    for (calEvent of data) {
 
         //start counting at 1 like humans 
         i++
@@ -184,5 +181,5 @@ END:VEVENT`
     downloadString(filename, crlfText);
 })
 .catch(error => {
-    console.error('CUSTOM Error:', error);
+    console.error('MyRec Export Error:', error);
 });
