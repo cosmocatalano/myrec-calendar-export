@@ -1,5 +1,4 @@
 //TODO
-//CRLF check and wrap for iCalendar validity
 //default export calendar name
 //separate function for response parsing
 //all-day handling
@@ -45,11 +44,12 @@ function wrapLineCSRF(input) {
     }
 }
 
-//force CRLF in output
-function writeCRLF(string) {
-    const lines = string.split(/\r?\n/); // Split by LF or CRLF
-    const crlfContent = lines.join('\r\n'); // Join with CRLF
-    return crlfContent;
+function removeBlankLinesRetainCRLF(str) {
+    // 1. Normalize all line endings to CRLF
+    const normalized = str.replace(/\r\n|\r|\n/g, '\r\n');
+    // 2. Remove blank lines using regex
+    const output = normalized.replace(/^[ \t]*\r\n/gm, '');
+    return output;
 }
 
 //returns object with separated title, paritipant, and location fields
@@ -166,7 +166,7 @@ END:VEVENT`
         	outputCalendar = outputCalendar + newEvent;
         }
        let text = outputCalendar + "\nEND:VCALENDAR\r\n";
-       let crlfText = writeCRLF(text);
+       let crlfText = removeBlankLinesRetainCRLF(text);
 	   let filename =   "test-cal.ics";
 	   downloadString(filename, crlfText);
     });
