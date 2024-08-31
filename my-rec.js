@@ -108,52 +108,62 @@ let outputCalendar = "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:MyRec-to-ICS";
 //object for returned data
 let rawCalJSON = {};
 
-//POST request that returns MyRec data using values pulled using getPostValue() above
-let rawCalResponse = $.post(
-	'https://' + myrecEndpoint, {
-        //NB: shift to lowercase on first letter
-		AccountID: getPostValue("accountID"), 
-		AccountMemberID: getPostValue("accountMemberID"), 
-		ShowFacilities: true, 
-		Debug: false,
-		start: '2024-07-28',
-		end: '2025-09-08'
-	}, 
-    // do stuff with that data
-    function(data) {
-        //get the JSON
-    	rawCalJSON = JSON.parse(rawCalResponse.responseText)
+//POST data
+const postData = {
+    AccountID: getPostValue("accountID"),
+    AccountMemberID: getPostValue("accountMemberID"),
+    ShowFacilities: true,
+    Debug: false,
+    start: '2024-07-28',
+    end: '2025-09-08'
+};
 
-        //set iterator for UID
-        let i = 0;
+//URL encoding
+const urlEncodedData = new URLSearchParams(postData).toString();
 
-        //timestamp for each item
-        let rightNow = formatDateForICal(new Date());
+//making requqest
+fetch(`https://${myrecEndpoint}`, {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'charset': 'UTF-8',
+        'X-Requested-With': 'XMLHttpRequest' 
+    },
+    body: urlEncodedData
+})
+.then(response => response.json())
+.then(data => {
 
-        //for each entry
-        for (calEvent of rawCalJSON) {
+    //set iterator for UID
+    let i = 0;
 
-            //start counting at 1 like humans 
-            i++
+    //timestamp for each item
+    let rightNow = formatDateForICal(new Date());
 
-            // assign a title
-            let eventTitle = '';
-            let extendedIcalValues = '';
+    //for each entry
+    for (calEvent of data) {
 
-            //check for title parser
-            if (isTitleParsed === true) {
-                //parse title
-                let parsedValues = parseTitle(calEvent.title);
-                //assign title variable
-                eventTitle = parsedValues.eventTitle;
-                //extended iCal values
-                extendedIcalValues = wrapLineCSRF("LOCATION:" + parsedValues.eventVenue) + "\r\n" +
-                                     wrapLineCSRF("ATTENDEE;CN=\"" + parsedValues.eventAttendee + "\";ROLE=PARTICIPANT\:")
-                
-            } else {
-                eventTitle = calEvent.title;
-            }
-        	let newEvent =`
+        //start counting at 1 like humans 
+        i++
+
+        // assign a title
+        let eventTitle = '';
+        let extendedIcalValues = '';
+
+        //check for title parser
+        if (isTitleParsed === true) {
+            //parse title
+            let parsedValues = parseTitle(calEvent.title);
+            //assign title variable
+            eventTitle = parsedValues.eventTitle;
+            //extended iCal values
+            extendedIcalValues = wrapLineCSRF("LOCATION:" + parsedValues.eventVenue) + "\r\n" +
+                                wrapLineCSRF("ATTENDEE;CN=\"" + parsedValues.eventAttendee + "\";ROLE=PARTICIPANT\:")
+            
+        } else {
+            eventTitle = calEvent.title;
+        }
+        let newEvent =`
 BEGIN:VEVENT
 UID:${"event-" + i + "@example.com"}
 DTSTAMP:${rightNow}
@@ -163,10 +173,13 @@ ${wrapLineCSRF('SUMMARY:' + eventTitle)}
 ${wrapLineCSRF('DESCRIPTION:' + calEvent.title + "\\nMore info: https://" + myrecHost + parseEventUrl(calEvent) )}
 ${extendedIcalValues}
 END:VEVENT`
-        	outputCalendar = outputCalendar + newEvent;
-        }
-       let text = outputCalendar + "\nEND:VCALENDAR\r\n";
-       let crlfText = removeBlankLinesRetainCRLF(text);
-	   let filename =   "test-cal.ics";
-	   downloadString(filename, crlfText);
-    });
+        outputCalendar = outputCalendar + newEvent;
+    }
+    let text = outputCalendar + "\nEND:VCALENDAR\r\n";
+    let crlfText = removeBlankLinesRetainCRLF(text);
+    let filename =   "test-cal.ics";
+    downloadString(filename, crlfText);
+})
+.catch(error => {
+    console.error('MyRec Export Error:', error);
+});
