@@ -45,6 +45,13 @@ function wrapLineCSRF(input) {
     }
 }
 
+//force CRLF in output
+function writeCRLF(string) {
+    const lines = string.split(/\r?\n/); // Split by LF or CRLF
+    const crlfContent = lines.join('\r\n'); // Join with CRLF
+    return crlfContent;
+}
+
 //returns object with separated title, paritipant, and location fields
 //splitting strings for now
 //maybe try some recursive regex plugins, though format can't really be guaranteed 
@@ -159,6 +166,7 @@ END:VEVENT`
         	outputCalendar = outputCalendar + newEvent;
         }
        let text = outputCalendar + "\nEND:VCALENDAR\r\n";
+       let crlfText = writeCRLF(text);
 	   let filename =   "test-cal.ics";
-	   downloadString(filename, text);
+	   downloadString(filename, crlfText);
     });
