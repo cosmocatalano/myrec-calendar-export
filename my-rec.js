@@ -143,7 +143,7 @@
         let rightNow = formatDateForICal(new Date());
 
         //for each entry
-        for (calEvent of data) {
+        for (let calEvent of data) {
 
             //start counting at 1 like humans 
             i++
@@ -166,15 +166,15 @@
                 eventTitle = calEvent.title;
             }
             let newEvent =`
-    BEGIN:VEVENT
-    UID:${"event-" + i + "@example.com"}
-    DTSTAMP:${rightNow}
-    DTSTART:${formatDateForICal(calEvent.start)}
-    DTEND:${formatDateForICal(calEvent.end)}
-    ${wrapLineCSRF('SUMMARY:' + eventTitle)}
-    ${wrapLineCSRF('DESCRIPTION:' + calEvent.title + "\\nMore info: https://" + myrecHost + parseEventUrl(calEvent) )}
-    ${extendedIcalValues}
-    END:VEVENT`
+BEGIN:VEVENT
+UID:${"event-" + i + "@example.com"}
+DTSTAMP:${rightNow}
+DTSTART:${formatDateForICal(calEvent.start)}
+DTEND:${formatDateForICal(calEvent.end)}
+${wrapLineCSRF('SUMMARY:' + eventTitle)}
+${wrapLineCSRF('DESCRIPTION:' + calEvent.title + "\\nMore info: https://" + myrecHost + parseEventUrl(calEvent) )}
+${extendedIcalValues}
+END:VEVENT`
             outputCalendar = outputCalendar + newEvent;
         }
         let text = outputCalendar + "\nEND:VCALENDAR\r\n";
