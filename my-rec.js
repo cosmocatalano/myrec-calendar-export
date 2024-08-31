@@ -30,7 +30,7 @@ function formatDateForICal(date) {
 
 //via ChatGPT | initially tried to sendme for() loop 
 function wrapLineCSRF(input) {
-    const maxLineLength = 75;
+    const maxLineLength = 70;
 
     //human wants to limit use to lines that need it because they tell me regex is expensive slow
     if ( input.length > maxLineLength ) {
@@ -96,9 +96,7 @@ let myrecHost = window.location.host;
 let myrecEndpoint = myrecHost + "/info/calendar/CalWebService.asmx/GetCalendarAccount"
 
 //start .ics file
-let outputCalendar = `BEGIN:VCALENDAR
-VERSION:2.0
-PRODID:MyRec-to-ICS`
+let outputCalendar = "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:MyRec-to-ICS";
 
 //object for returned data
 let rawCalJSON = {};
@@ -142,8 +140,8 @@ let rawCalResponse = $.post(
                 //assign title variable
                 eventTitle = parsedValues.eventTitle;
                 //extended iCal values
-                extendedIcalValues = wrapLineCSRF("LOCATION:" + parsedValues.eventVenue) + 
-                                     wrapLineCSRF("\nATTENDEE;CN=\"" + parsedValues.eventAttendee + "\";ROLE=PARTICIPANT\:")
+                extendedIcalValues = wrapLineCSRF("LOCATION:" + parsedValues.eventVenue) + "\r\n" +
+                                     wrapLineCSRF("ATTENDEE;CN=\"" + parsedValues.eventAttendee + "\";ROLE=PARTICIPANT\:")
                 
             } else {
                 eventTitle = calEvent.title;
@@ -160,7 +158,7 @@ ${extendedIcalValues}
 END:VEVENT`
         	outputCalendar = outputCalendar + newEvent;
         }
-       let text = outputCalendar + "\nEND:VCALENDAR";
+       let text = outputCalendar + "\nEND:VCALENDAR\r\n";
 	   let filename =   "test-cal.ics";
 	   downloadString(filename, text);
     });
