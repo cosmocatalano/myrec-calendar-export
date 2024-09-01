@@ -16,6 +16,7 @@
         document.body.removeChild(element);
     }
 
+
     //via ChatGPT | only had to make one fix!
     function formatDateForICal(date) {
         let icalDate = new Date(date);
@@ -186,4 +187,4 @@ END:VEVENT`
         console.error('MyRec Export Error:', error);
     });
 })();
-    
+ 
