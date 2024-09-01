@@ -55,6 +55,7 @@
         }
     }
 
+    //removes blank lines
     function removeBlankLinesRetainCRLF(str) {
         // 1. Normalize all line endings to CRLF
         const normalized = str.replace(/\r\n|\r|\n/g, '\r\n');
@@ -105,13 +106,15 @@
         return regexUrl[1];
     }
 
-    //settings
+    //flag to parse title into attendee/location optons
     let isTitleParsed = true;
 
-    //set times
+    //set time window to pull events from
     let rightNow = new Date();
     let nextYear = new Date(rightNow);
     nextYear.setFullYear(nextYear.getFullYear() + 1);
+    let startTime = rightNow;
+    let endTime = nextYear;
 
 
     //get host & build endpoint
@@ -131,8 +134,8 @@
         AccountMemberID: getPostValue("accountMemberID"),
         ShowFacilities: true,
         Debug: false,
-        start: formatDateForMyrec(rightNow),
-        end: formatDateForMyrec(nextYear)
+        start: formatDateForMyrec(startTime),
+        end: formatDateForMyrec(endTime)
     };
 
     //URL encoding
