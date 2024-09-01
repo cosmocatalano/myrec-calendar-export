@@ -1,23 +1,12 @@
-# Bookmarklet to Chrome Extension Template
+# MyRec Calendar Export
 
-This is an updated version of [bookmarklet-to-chrome-extension-boilerplate](https://github.com/micmro/bookmarklet-to-chrome-extension-boilerplate) by micmro. In this version, the extension code is updated from V2 to V3.
+This Chrome Extension takes data from a MyRec calendar page and exports it as an iCalendar (.ics) file.
 
-Template to port your bookmarklet to a Chrome extension.
+## Installation
 
-Simply copy your bookmarklet code into `bookmarklet-code.js` and test it localy, update the metadata and you're ready to pack it.
+> Clone or download this repo to your local machine.
 
-In order to publish your extension follow the steps [here](https://developer.chrome.com/webstore/publish).
-
-
-## Test the chrome extension localy
-
-The documentation below is from the [Chrome Developer site](https://developer.chrome.com/extensions/getstarted#unpacked), augmented with screenshots from this Template project:
-
-> Extensions that you download from the Chrome Web Store are packaged up as .crx files, which is great for distribution, but not so great for development. Recognizing this, Chrome gives you a quick way of loading up your working directory for testing. Let's do that now.
-
-
-
-> Visit [chrome://extensions](chrome://extensions) in your browser (or open up the Chrome menu by clicking the icon to the far right of the Omnibox:  The menu's icon is three horizontal bars. and select Extensions under the Tools menu to get to the same place).
+> Go to [chrome://extensions](chrome://extensions) in your browser (or open up the Chrome menu by clicking the icon to the far right of the Omnibox:  The menu's icon is three horizontal bars. and select Extensions under the Tools menu to get to the same place).
 
 > Ensure that the Developer mode checkbox in the top right-hand corner is checked.
 
@@ -31,28 +20,11 @@ The documentation below is from the [Chrome Developer site](https://developer.ch
 
 > Alternatively, you can drag and drop the directory where your extension files live onto chrome://extensions in your browser to load it.
 
-> If the extension is valid, it'll be loaded up and active right away! If it's invalid, an error message will be displayed at the top of the page. Correct the error, and try again.
+You can read more about it at the [Chrome Developer site](https://developer.chrome.com/extensions/getstarted#unpacked)
 
-![alt text](https://raw.githubusercontent.com/micmro/bookmarklet-to-chrome-extension-boilerplate/gh-pages/images/local-extension-loaded.png "screenshot of local Chrome Extension added")
+## Use 
 
-![alt text](https://raw.githubusercontent.com/micmro/bookmarklet-to-chrome-extension-boilerplate/gh-pages/images/bookmark-bar.png "screenshot of local Chrome Extension")
+Log in to the MyRec account you'd like to export the calendar from, and navigate to the **Calendar** page. The URL should be something like https://\[yourCityName\].myrec.com/info/calendar/account.aspx.
 
-## Updating the manifest.json metadata
+Got to the Plugins section of your Chrome Toolbar and click the MyRec Calendar Export icon. An .ics file of your events should automatically downloaf.
 
-You'll need to update the following keys in the `manifest.json` file:
-
-- `name`
-  Name of the chrome extension
-- `description`
-  Expain your chrome extension
-- `homepage_url`
-  _(optinal)_ Your projects website, e.g. github repo
-- `author`
-  Your or your organizations name
-- `icons`
-  Icon in various sizes for the Chrome Webstore
-- `default_icon`
-  Icon for the browser extension bar
-
-##More
-Check out [bookmarklet-to-firefox-addon-boilerplate](https://github.com/micmro/bookmarklet-to-firefox-addon-boilerplate) if you want to port your bookmarklet to Firefox as well.
