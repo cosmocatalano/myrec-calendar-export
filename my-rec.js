@@ -1,6 +1,6 @@
 (function(){
 	"use strict";
-   //TODO
+    //TODO
     //default export calendar name
     //separate function for response parsing
     //all-day handling
@@ -28,6 +28,14 @@
         const minutes = String(icalDate.getUTCMinutes()).padStart(2, '0');
         const seconds = String(icalDate.getUTCSeconds()).padStart(2, '0');
         return `${year}${month}${day}T${hours}${minutes}${seconds}Z`;
+    }
+
+    function formatDateForMyrec(date) {
+            let year = date.getFullYear();
+            let month = String(date.getMonth() + 1).padStart(2, '0')
+            let day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
     }
 
     //via ChatGPT | initially tried to sendme for() loop 
@@ -100,6 +108,12 @@
     //settings
     let isTitleParsed = true;
 
+    //set times
+    let rightNow = new Date();
+    let nextYear = new Date(rightNow);
+    nextYear.setFullYear(nextYear.getFullYear() + 1);
+
+
     //get host & build endpoint
     let myrecHost = window.location.host;
     //maybe attempt to auto-detect at some point 
@@ -117,8 +131,8 @@
         AccountMemberID: getPostValue("accountMemberID"),
         ShowFacilities: true,
         Debug: false,
-        start: '2024-07-28',
-        end: '2025-09-08'
+        start: formatDateForMyrec(rightNow),
+        end: formatDateForMyrec(nextYear)
     };
 
     //URL encoding
@@ -141,7 +155,7 @@
         let i = 0;
 
         //timestamp for each item
-        let rightNow = formatDateForICal(new Date());
+        let rightNow = formatDateForICal();
 
         //for each entry
         for (let calEvent of data) {
