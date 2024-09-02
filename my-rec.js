@@ -1,7 +1,8 @@
 (function(){
 	"use strict";
     //TODO
-    //default export calendar name
+    //better (any!) UX
+    //dynamic export calendar name
     //separate function for response parsing
     //all-day handling
 
@@ -86,6 +87,17 @@
         return parsedTitle;
     }
 
+    //quick string check to make parseTitle() less brittle
+    //checks for more than one * or ( and returns false if found
+    function checkSafeTitle(titleString) {
+        if ( /\*{2,}|\({2,}/.test(titleString) ) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+        
+
     //pulls request values out of the script last script in the header
     function getPostValue(postKey) {
         //assumes last script in head
@@ -106,14 +118,15 @@
     }
 
     //flag to parse title into attendee/location optons
-    let isTitleParsed = true;
+    let isTitleParsed = false; //change this to false to NOT attempt to separate venue, time, etc.
 
     //set time window to pull events from
+    //supply your own Date() objects to change the time window, e.g. below
     let rightNow = new Date();
     let nextYear = new Date(rightNow);
     nextYear.setFullYear(nextYear.getFullYear() + 1);
-    let startTime = rightNow;
-    let endTime = nextYear;
+    let startTime = rightNow;  // change to (for example) new Date('March 20, 2025')
+    let endTime = nextYear;    // change to (for example) new Date('March 30, 2025')
 
 
     //get host & build endpoint
@@ -167,8 +180,8 @@
             let eventTitle = '';
             let extendedIcalValues = '';
 
-            //check for title parser flag
-            if (isTitleParsed === true) {
+            //check for title parser flag, problematic strings
+            if (checkSafeTitle(calEvent.title) === true && isTitleParsed === true) {
                 //parse title
                 let parsedValues = parseTitle(calEvent.title);
                 //assign title variable
@@ -203,7 +216,7 @@ END:VEVENT`
         let crlfText = removeBlankLinesRetainCRLF(text);
         
         //assign file a name
-        let filename =   "test-cal.ics";
+        let filename =   "myrec-calendar.ics";
 
         //download the file
         downloadString(filename, crlfText);
