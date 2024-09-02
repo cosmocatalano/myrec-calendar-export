@@ -1,11 +1,11 @@
 (function(){
 	"use strict";
-   //TODO
+    //TODO
     //default export calendar name
     //separate function for response parsing
     //all-day handling
 
-    //via TF export
+    //downloads a file, via TF export
     function downloadString(filename, text) {
         var element = document.createElement('a');
         element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
@@ -16,8 +16,7 @@
         document.body.removeChild(element);
     }
 
-
-    //via ChatGPT | only had to make one fix!
+    //formats dates for iCal | via ChatGPT | only had to make one fix!
     function formatDateForICal(date) {
         let icalDate = new Date(date);
         // Format the date as YYYYMMDDTHHMMSSZ
@@ -28,6 +27,14 @@
         const minutes = String(icalDate.getUTCMinutes()).padStart(2, '0');
         const seconds = String(icalDate.getUTCSeconds()).padStart(2, '0');
         return `${year}${month}${day}T${hours}${minutes}${seconds}Z`;
+    }
+
+    //formats date for MyRec post request
+    function formatDateForMyrec(date) {
+        let year = date.getFullYear();
+        let month = String(date.getMonth() + 1).padStart(2, '0')
+        let day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
     }
 
     //via ChatGPT | initially tried to sendme for() loop 
@@ -47,6 +54,7 @@
         }
     }
 
+    //removes blank lines
     function removeBlankLinesRetainCRLF(str) {
         // 1. Normalize all line endings to CRLF
         const normalized = str.replace(/\r\n|\r|\n/g, '\r\n');
@@ -97,19 +105,25 @@
         return regexUrl[1];
     }
 
-    //settings
+    //flag to parse title into attendee/location optons
     let isTitleParsed = true;
+
+    //set time window to pull events from
+    let rightNow = new Date();
+    let nextYear = new Date(rightNow);
+    nextYear.setFullYear(nextYear.getFullYear() + 1);
+    let startTime = rightNow;
+    let endTime = nextYear;
+
 
     //get host & build endpoint
     let myrecHost = window.location.host;
+
     //maybe attempt to auto-detect at some point 
     let myrecEndpoint = myrecHost + "/info/calendar/CalWebService.asmx/GetCalendarAccount"
 
-    //start .ics file
+    //start string for .ics output file
     let outputCalendar = "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:MyRec-to-ICS";
-
-    //object for returned data
-    let rawCalJSON = {};
 
     //POST data
     const postData = {
@@ -117,14 +131,14 @@
         AccountMemberID: getPostValue("accountMemberID"),
         ShowFacilities: true,
         Debug: false,
-        start: '2024-07-28',
-        end: '2025-09-08'
+        start: formatDateForMyrec(startTime),
+        end: formatDateForMyrec(endTime)
     };
 
-    //URL encoding
+    //URL encoding to keep the server happy
     const urlEncodedData = new URLSearchParams(postData).toString();
 
-    //making requqest
+    //making requqest with correctly-encoded POST data
     fetch(`https://${myrecEndpoint}`, {
         method: 'POST',
         headers: {
@@ -137,13 +151,13 @@
     .then(response => response.json())
     .then(data => {
 
-        //set iterator for UID
+        //set iterator for iCalendar UID
         let i = 0;
 
         //timestamp for each item
-        let rightNow = formatDateForICal(new Date());
+        let timestampIcal = formatDateForICal(rightNow);
 
-        //for each entry
+        //for each calendar entry
         for (let calEvent of data) {
 
             //start counting at 1 like humans 
@@ -153,7 +167,7 @@
             let eventTitle = '';
             let extendedIcalValues = '';
 
-            //check for title parser
+            //check for title parser flag
             if (isTitleParsed === true) {
                 //parse title
                 let parsedValues = parseTitle(calEvent.title);
@@ -164,12 +178,15 @@
                                     wrapLineCSRF("ATTENDEE;CN=\"" + parsedValues.eventAttendee + "\";ROLE=PARTICIPANT\:")
                 
             } else {
+                //if off, dump everything in title
                 eventTitle = calEvent.title;
             }
+
+            //template for each event, whitespace is important here
             let newEvent =`
 BEGIN:VEVENT
 UID:${"event-" + i + "@example.com"}
-DTSTAMP:${rightNow}
+DTSTAMP:${timestampIcal}
 DTSTART:${formatDateForICal(calEvent.start)}
 DTEND:${formatDateForICal(calEvent.end)}
 ${wrapLineCSRF('SUMMARY:' + eventTitle)}
@@ -177,10 +194,18 @@ ${wrapLineCSRF('DESCRIPTION:' + calEvent.title + "\\nMore info: https://" + myre
 ${extendedIcalValues}
 END:VEVENT`
             outputCalendar = outputCalendar + newEvent;
-        }
+        } //end for-of loop 
+
+        //string to end ICS file
         let text = outputCalendar + "\nEND:VCALENDAR\r\n";
+
+        //clean up ICS file line endings
         let crlfText = removeBlankLinesRetainCRLF(text);
+        
+        //assign file a name
         let filename =   "test-cal.ics";
+
+        //download the file
         downloadString(filename, crlfText);
     })
     .catch(error => {
