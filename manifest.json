@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "MyRec Calendar Exporter",
+  "name": "MyRec Calendar Export",
   "description": "Exports your calendars from MyRec Calendar pages as .ics files",
   "version": "1.0",
   "homepage_url": "https://github.com/cosmocatalano/myrec-calendar-export",

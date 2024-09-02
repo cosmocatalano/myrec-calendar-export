@@ -23,4 +23,14 @@ Click the **Extensions** icon in your Chrome Toolbar and select **MyRec Calendar
 
 ![screenshot of a MyRec calendar page, with the Extensions icon and MyRec Calendar Exporter dropdown item highlighted with a red circle](https://github.com/user-attachments/assets/c1a381a9-5516-4a43-a4f2-41f07609bcfa)
 
+## Details / Caveats
 
+By default, extension exports a full year of calendar items, starting on the day the script is run. You can change this by supplying your own `Date()` objects for the `startTime` and  `endTime` variables in `my-rec.js`.
+
+Exported calendars **do not** sync with changes in MyRec—you will need to re-export any time you add/remove/change your schedule. Also, successive exports/imports  **will not** overwrite/update existing event data. I would recommend creating a separate calendar for MyRec events within the calendar app of your choosing that you can fully delete before making a new import.
+
+Finally, MyRec sandwiches the name of the event _participant_ and event _venue_ into its event _titles_. By default, this Extension attempts (in the `parseTitle()` function)  to parse those into the ICS fields for [Attendee](https://www.kanzaki.com/docs/ical/attendee.html) and [Location](https://www.kanzaki.com/docs/ical/location.html). This is based on some possibly unreliable assumptions about title text format. 
+
+The script does attempt to check for problems (in `checkSafeTitle()`) but if you run into issues and/or want all events formatted consistently, you can turn off this title parsing by setting `isTitleParsed` to `false`.
+
+The script does check for titles that might break it, and in those instanaces

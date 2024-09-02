@@ -118,7 +118,7 @@
     }
 
     //flag to parse title into attendee/location optons
-    let isTitleParsed = false; //change this to false to NOT attempt to separate venue, time, etc.
+    let isTitleParsed = true; //change this to false to NOT attempt to separate venue, time, etc.
 
     //set time window to pull events from
     //supply your own Date() objects to change the time window, e.g. below
