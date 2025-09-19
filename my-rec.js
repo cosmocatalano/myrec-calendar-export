@@ -120,6 +120,9 @@
     //flag to parse title into attendee/location optons
     let isTitleParsed = true; //change this to false to NOT attempt to separate venue, time, etc.
 
+    //flag to group events with same name into recurring series using RRULE
+    let isSeriesGrouped = true; //change this to false to keep events separate instead of creating recurring series
+
     //set time window to pull events from
     //supply your own Date() objects to change the time window, e.g. below
     let rightNow = new Date();
